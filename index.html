@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css">
+  <link rel="shortcut icon" href="img/favico.svg" type="image/x-icon">
+  <title>EPICBET</title>
+  <title>EPICBET - Raspadita</title>
+</head>
+<body>
+  <div class="wrap">
+    <div class="panel">
+      <div class="head">
+        <div class="badge">BONO EXCLUSIVO</div>
+        <h1>RASPÁ Y DESCUBRÍ <span>TU BONO</span></h1>
+        <p class="sub">Descubrí tu premio y activalo al instante en EPICBET.</p>
+      </div>
+
+      <div class="content">
+        <div class="scratch-shell">
+          <div class="scratch-frame">
+            <div class="scratch-card" id="scratchCard">
+              <div class="confetti" id="confetti"></div>
+
+              <div class="prize">
+                <div class="prize-badge">PREMIO DESBLOQUEADO</div>
+                <div class="won">Ganaste</div>
+                <div class="amount">100% DE TU DEPÓSITO</div>
+                <div class="desc">hasta el monto promocional disponible</div>
+              </div>
+
+              <canvas id="scratchCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="status" id="statusBlock">
+          <p class="hint">Raspá la tarjeta para revelar tu premio</p>
+          <p class="progress">Progreso: <span id="progressValue">0</span>%</p>
+        </div>
+
+        <div class="result" id="resultBlock">Bono revelado: 100% de tu depósito</div>
+
+        <button class="btn btn-primary" id="openPopupBtn" type="button">
+          QUIERO MI BONO
+        </button>
+
+        <div class="legal">+18 | Aplican T&amp;C | Juega responsablemente</div>
+
+        <audio id="winSound" preload="auto">
+          <source src="TU-SOUND.mp3" type="audio/mpeg" />
+        </audio>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP -->
+  <div class="overlay" id="popupOverlay">
+    <div class="popup">
+      <h3>Elegí una opción</h3>
+      <p>Seleccioná cómo querés continuar con tu bono.</p>
+
+      <a
+        class="popup-link popup-registro"
+        href="https://my.sisu.partners/visit/?bta=35985&nci=5672"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Link de Registro
+      </a>
+
+      <a
+        class="popup-link popup-whatsapp"
+        href="https://wa.me/5493364531640?text=Hola%20quiero%20mi%20bono"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        WhatsApp
+      </a>
+
+      <button class="popup-close" id="closePopupBtn" type="button">Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("scratchCanvas");
+    const card = document.getElementById("scratchCard");
+    const progressValue = document.getElementById("progressValue");
+    const resultBlock = document.getElementById("resultBlock");
+    const statusBlock = document.getElementById("statusBlock");
+    const confetti = document.getElementById("confetti");
+
+    const openPopupBtn = document.getElementById("openPopupBtn");
+    const closePopupBtn = document.getElementById("closePopupBtn");
+    const popupOverlay = document.getElementById("popupOverlay");
+
+    let ctx;
+    let drawing = false;
+    let revealed = false;
+    let progress = 0;
+
+    function roundRect(context, x, y, width, height, radius) {
+      context.beginPath();
+      context.moveTo(x + radius, y);
+      context.lineTo(x + width - radius, y);
+      context.quadraticCurveTo(x + width, y, x + width, y + radius);
+      context.lineTo(x + width, y + height - radius);
+      context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      context.lineTo(x + radius, y + height);
+      context.quadraticCurveTo(x, y + height, x, y + height - radius);
+      context.lineTo(x, y + radius);
+      context.quadraticCurveTo(x, y, x + radius, y);
+      context.closePath();
+    }
+
+    function resizeCanvas() {
+      const rect = card.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+
+      canvas.width = rect.width * ratio;
+      canvas.height = rect.height * ratio;
+      canvas.style.width = rect.width + "px";
+      canvas.style.height = rect.height + "px";
+
+      ctx = canvas.getContext("2d", { willReadFrequently: true });
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+      if (!revealed) drawSurface();
+    }
+
+    function drawSurface() {
+      const rect = card.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width, rect.height);
+
+      const gradient = ctx.createLinearGradient(0, 0, rect.width, rect.height);
+      gradient.addColorStop(0, "#9AA3B2");
+      gradient.addColorStop(0.18, "#D7DDE7");
+      gradient.addColorStop(0.38, "#7A8598");
+      gradient.addColorStop(0.56, "#C2C9D4");
+      gradient.addColorStop(0.78, "#8E98A8");
+      gradient.addColorStop(1, "#C8D0DB");
+
+      ctx.fillStyle = gradient;
+      roundRect(ctx, 0, 0, rect.width, rect.height, 18);
+      ctx.fill();
+
+      ctx.globalAlpha = 0.18;
+      ctx.fillStyle = "#FFFFFF";
+      for (let i = -rect.height; i < rect.width + rect.height; i += 18) {
+        ctx.fillRect(i, 0, 6, rect.height);
+      }
+      ctx.globalAlpha = 1;
+
+      ctx.fillStyle = "rgba(0,0,0,0.12)";
+      const marks = [
+        [rect.width * 0.15, rect.height * 0.18, 28, 56, -0.35],
+        [rect.width * 0.38, rect.height * 0.44, 34, 70, 0.2],
+        [rect.width * 0.62, rect.height * 0.24, 26, 50, 0.32],
+        [rect.width * 0.72, rect.height * 0.64, 28, 58, -0.18],
+        [rect.width * 0.25, rect.height * 0.72, 24, 42, 0.14]
+      ];
+
+      marks.forEach(([x, y, w, h, r]) => {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(r);
+        roundRect(ctx, -w / 2, -h / 2, w, h, 999);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      ctx.fillStyle = "rgba(15,23,42,0.82)";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "700 12px Arial";
+      ctx.fillText("Raspadita", rect.width / 2, rect.height / 2 - 48);
+      ctx.font = "900 44px Arial";
+      ctx.fillText("RASPÁ", rect.width / 2, rect.height / 2 - 4);
+      ctx.font = "700 20px Arial";
+      ctx.fillText("y activá tu bono", rect.width / 2, rect.height / 2 + 34);
+    }
+
+    function scratch(clientX, clientY) {
+      if (revealed) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.beginPath();
+      ctx.arc(x, y, 26, 0, Math.PI * 2);
+      ctx.fill();
+
+      updateProgress();
+    }
+
+    function updateProgress() {
+      if (revealed) return;
+
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let transparent = 0;
+      const stride = 32;
+
+      for (let i = 3; i < data.length; i += 4 * stride) {
+        if (data[i] === 0) transparent++;
+      }
+
+      const total = Math.ceil(data.length / (4 * stride));
+      progress = Math.min(100, Math.round((transparent / total) * 100));
+      progressValue.textContent = progress;
+
+      if (progress >= 42) revealPrize();
+    }
+
+    function playWinSound() {
+      const sound = document.getElementById("winSound");
+      if (!sound) return;
+      const source = sound.querySelector("source");
+      if (!source) return;
+      const src = source.getAttribute("src");
+      if (!src || src === "TU-SOUND.mp3") return;
+      sound.currentTime = 0;
+      sound.play().catch(() => {});
+    }
+
+    function revealPrize() {
+      revealed = true;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvas.style.display = "none";
+      statusBlock.style.display = "none";
+      resultBlock.style.display = "block";
+      launchConfetti();
+      playWinSound();
+    }
+
+    function launchConfetti() {
+      confetti.innerHTML = "";
+      const colors = ["#C6FF00", "#FFFFFF", "#A3E635", "#D9FF66"];
+
+      for (let i = 0; i < 60; i++) {
+        const piece = document.createElement("span");
+        piece.className = "confetti-piece";
+        piece.style.left = (4 + ((i * 11) % 92)) + "%";
+        piece.style.width = (6 + (i % 5) * 2) + "px";
+        piece.style.height = (10 + (i % 5) * 4) + "px";
+        piece.style.background = colors[i % colors.length];
+        piece.style.boxShadow = "0 0 10px " + colors[i % colors.length];
+        piece.style.animationDuration = (3.2 + (i % 6) * 0.28) + "s";
+        piece.style.animationDelay = ((i % 10) * 0.05) + "s";
+        piece.style.setProperty("--x", (i % 2 === 0 ? -55 : 55) + "px");
+        piece.style.setProperty("--r", ((i % 2 === 0 ? 1 : -1) * (140 + i * 8)) + "deg");
+        confetti.appendChild(piece);
+      }
+
+      setTimeout(() => {
+        confetti.innerHTML = "";
+      }, 5200);
+    }
+
+    canvas.addEventListener("pointerdown", (e) => {
+      drawing = true;
+      scratch(e.clientX, e.clientY);
+    });
+
+    canvas.addEventListener("pointermove", (e) => {
+      if (!drawing) return;
+      scratch(e.clientX, e.clientY);
+    });
+
+    ["pointerup", "pointerleave", "pointercancel"].forEach((evt) => {
+      canvas.addEventListener(evt, () => {
+        drawing = false;
+      });
+    });
+
+    openPopupBtn.addEventListener("click", () => {
+      popupOverlay.style.display = "flex";
+    });
+
+    closePopupBtn.addEventListener("click", () => {
+      popupOverlay.style.display = "none";
+    });
+
+    popupOverlay.addEventListener("click", (e) => {
+      if (e.target === popupOverlay) {
+        popupOverlay.style.display = "none";
+      }
+    });
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+  </script>
+</body>
+</html>
