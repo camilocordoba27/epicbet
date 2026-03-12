@@ -1,0 +1,511 @@
+<!-- /public/raspadita.html -->
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Epicbet Raspadita (HTML5)</title>
+    <style>
+      :root {
+        --bg: #0b1220;
+        --card: #111a2b;
+        --card2: #0e1626;
+        --accent: #ffc107;
+        --lime: #c6ff00;
+        --text: #ffffff;
+        --muted: #94a3b8;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      .wrap { width: 100%; max-width: 420px; }
+
+      .card {
+        border-radius: 28px;
+        border: 1px solid rgba(255, 193, 7, 0.25);
+        background: var(--card);
+        box-shadow: 0 24px 60px rgba(0,0,0,.45);
+        overflow: hidden;
+      }
+
+      .head { padding: 24px 24px 16px; text-align: center; }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 193, 7, 0.5);
+        padding: 6px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        color: var(--accent);
+      }
+      h1 {
+        margin: 16px 0 0;
+        font-size: 30px;
+        line-height: 1.05;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+      }
+      h1 .accent { display:block; color: var(--accent); }
+      .subtitle {
+        margin: 12px 0 0;
+        font-size: 13px;
+        color: rgba(226,232,240,.85);
+      }
+
+      .body { padding: 0 24px 24px; }
+
+      .scratch-shell {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 300px;
+        border-radius: 24px;
+        border: 1px solid rgba(255,255,255,0.10);
+        background: var(--card2);
+        padding: 16px;
+        box-shadow: 0 0 40px rgba(198,255,0,0.10);
+      }
+
+      .scratch-frame {
+        position: relative;
+        aspect-ratio: 4 / 5;
+        border-radius: 20px;
+        padding: 2px;
+        background: linear-gradient(180deg,#1a2335 0%,#0b1220 100%);
+      }
+
+      .scratch-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        border-radius: 18px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at top, rgba(198,255,0,0.22), transparent 42%),
+          linear-gradient(180deg,#10192b 0%, #0a1120 100%);
+      }
+
+      .shine {
+        position: absolute;
+        inset: 0;
+        opacity: .20;
+        background:
+          linear-gradient(135deg, transparent 0%, transparent 35%,
+            rgba(255,255,255,0.08) 35%, rgba(255,255,255,0.08) 40%,
+            transparent 40%, transparent 100%);
+        background-size: 18px 18px;
+        pointer-events: none;
+      }
+
+      .prize {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0 20px;
+        text-align: center;
+      }
+
+      .badge {
+        margin-bottom: 10px;
+        border-radius: 999px;
+        background: rgba(255,193,7,0.15);
+        border: 1px solid rgba(255,193,7,0.35);
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 800;
+        padding: 6px 10px;
+      }
+
+      .win { font-size: 13px; font-weight: 600; letter-spacing: .20em; text-transform: uppercase; color: rgba(226,232,240,.82); }
+      .title {
+        margin-top: 12px;
+        font-size: 2.2rem;
+        font-weight: 950;
+        line-height: 1;
+        color: var(--accent);
+        filter: drop-shadow(0 0 18px rgba(198,255,0,0.35));
+      }
+      .sub { margin-top: 10px; font-size: 13px; color: rgba(226,232,240,.82); }
+
+      canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+
+      .status { margin-top: 16px; text-align: center; }
+      .status p { margin: 0; }
+      .status .hint { font-size: 14px; font-weight: 700; }
+      .status .prog { margin-top: 6px; font-size: 12px; color: rgba(148,163,184,.95); }
+
+      .revealed {
+        margin-top: 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,193,7,0.30);
+        background: rgba(255,193,7,0.10);
+        padding: 12px 14px;
+        font-size: 14px;
+        font-weight: 800;
+        color: #e8ffd1;
+        text-align: center;
+      }
+
+      .cta {
+        margin-top: 18px;
+        display: block;
+        width: 100%;
+        text-align: center;
+        border-radius: 16px;
+        background: var(--accent);
+        color: #0b1220;
+        text-decoration: none;
+        font-weight: 950;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        padding: 16px 18px;
+        box-shadow: 0 0 30px rgba(255,193,7,0.28);
+        transition: transform .12s ease;
+      }
+      .cta:hover { transform: scale(1.01); }
+
+      .payments { margin-top: 22px; text-align: center; }
+      .payments h3 { margin: 0 0 10px; font-size: 13px; font-weight: 900; color: var(--lime); }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        align-items: center;
+      }
+      .grid img {
+        height: 40px;
+        width: 100%;
+        object-fit: contain;
+        background: var(--card2);
+        border: 1px solid rgba(198,255,0,0.30);
+        border-radius: 10px;
+        padding: 8px;
+      }
+      .fast { margin-top: 8px; font-size: 14px; font-weight: 800; color: var(--lime); }
+
+      .fine { margin-top: 12px; text-align: center; font-size: 12px; color: rgba(148,163,184,.95); }
+      .row { margin-top: 10px; display: flex; gap: 10px; justify-content: center; }
+      .btn-secondary {
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.16);
+        background: rgba(255,255,255,0.06);
+        color: rgba(226,232,240,.9);
+        padding: 10px 12px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <div class="head">
+          <div class="pill">BONO EXCLUSIVO</div>
+          <h1>
+            RASPÁ Y DESCUBRÍ
+            <span class="accent">TU BONO</span>
+          </h1>
+          <p class="subtitle">Descubrí tu premio y activalo al instante en EPICBET.</p>
+        </div>
+
+        <div class="body">
+          <div class="scratch-shell">
+            <div class="scratch-frame">
+              <div id="scratchContainer" class="scratch-container">
+                <div class="shine"></div>
+
+                <div class="prize">
+                  <div class="badge">PREMIO DESBLOQUEADO</div>
+                  <div class="win">Ganaste</div>
+                  <div id="prizeTitle" class="title">100% DE TU DEPÓSITO</div>
+                  <div id="prizeSub" class="sub">hasta el monto promocional disponible</div>
+                </div>
+
+                <canvas id="scratchCanvas" aria-label="Raspadita"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="status" id="statusArea">
+            <p class="hint">Raspá la tarjeta para revelar tu premio</p>
+            <p class="prog">Progreso: <span id="progressText">0</span>%</p>
+            <div class="row">
+              <button class="btn-secondary" id="resetBtn" type="button">Reiniciar</button>
+            </div>
+          </div>
+
+          <div class="revealed" id="revealedBox" style="display:none;">
+            Bono revelado: 100% de tu depósito
+          </div>
+
+          <a class="cta" href="https://TU-LINK-DE-REGISTRO.com" target="_blank" rel="noreferrer">
+            QUIERO MI BONO
+          </a>
+
+          <div class="payments">
+            <h3>Métodos de pagos disponibles</h3>
+            <div class="grid">
+              <img src="/mach.png" alt="Mach" />
+              <img src="/banco.png" alt="Banco" />
+              <img src="/skrill.png" alt="Skrill" />
+              <img src="/webpay.png" alt="Webpay" />
+            </div>
+            <div class="fast">Depósitos rápidos</div>
+          </div>
+
+          <div class="fine">+18 | Aplican T&amp;C | Juega responsablemente</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /**
+       * Raspadita HTML5 (Canvas scratch).
+       * - Pointer events (mouse/touch/stylus)
+       * - Pointer capture para no cortar al salir del canvas
+       * - Throttle de cálculo de progreso con requestAnimationFrame
+       */
+
+      const prize = {
+        title: "100% DE TU DEPÓSITO",
+        subtitle: "hasta el monto promocional disponible",
+      };
+
+      const canvas = document.getElementById("scratchCanvas");
+      const container = document.getElementById("scratchContainer");
+      const progressText = document.getElementById("progressText");
+      const revealedBox = document.getElementById("revealedBox");
+      const statusArea = document.getElementById("statusArea");
+      const resetBtn = document.getElementById("resetBtn");
+
+      document.getElementById("prizeTitle").textContent = prize.title;
+      document.getElementById("prizeSub").textContent = prize.subtitle;
+
+      let isDrawing = false;
+      let revealed = false;
+      let progress = 0;
+
+      let rafPending = false;
+
+      function roundRectPath(ctx, x, y, w, h, r) {
+        const radius = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+        if (ctx.roundRect) {
+          ctx.beginPath();
+          ctx.roundRect(x, y, w, h, radius);
+          return;
+        }
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+      }
+
+      function drawScratchSurface() {
+        if (!canvas || !container) return;
+
+        const rect = container.getBoundingClientRect();
+        const ratio = window.devicePixelRatio || 1;
+
+        canvas.width = Math.max(1, Math.floor(rect.width * ratio));
+        canvas.height = Math.max(1, Math.floor(rect.height * ratio));
+        canvas.style.width = rect.width + "px";
+        canvas.style.height = rect.height + "px";
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        ctx.clearRect(0, 0, rect.width, rect.height);
+
+        const gradient = ctx.createLinearGradient(0, 0, rect.width, rect.height);
+        gradient.addColorStop(0, "#9aa3b2");
+        gradient.addColorStop(0.18, "#d7dde7");
+        gradient.addColorStop(0.38, "#7a8598");
+        gradient.addColorStop(0.56, "#c2c9d4");
+        gradient.addColorStop(0.78, "#8e98a8");
+        gradient.addColorStop(1, "#c8d0db");
+
+        ctx.fillStyle = gradient;
+        roundRectPath(ctx, 0, 0, rect.width, rect.height, 18);
+        ctx.fill();
+
+        ctx.globalAlpha = 0.18;
+        ctx.fillStyle = "#ffffff";
+        for (let i = -rect.height; i < rect.width + rect.height; i += 18) {
+          ctx.fillRect(i, 0, 6, rect.height);
+        }
+        ctx.globalAlpha = 1;
+
+        ctx.fillStyle = "rgba(0,0,0,0.12)";
+        const marks = [
+          [rect.width * 0.15, rect.height * 0.18, 28, 56, -0.35],
+          [rect.width * 0.38, rect.height * 0.44, 34, 70, 0.2],
+          [rect.width * 0.62, rect.height * 0.24, 26, 50, 0.32],
+          [rect.width * 0.72, rect.height * 0.64, 28, 58, -0.18],
+          [rect.width * 0.25, rect.height * 0.72, 24, 42, 0.14],
+        ];
+
+        marks.forEach(([x, y, w, h, rot]) => {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(rot);
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(-w / 2, -h / 2, w, h, 999);
+          else roundRectPath(ctx, -w / 2, -h / 2, w, h, Math.min(w, h) / 2);
+          ctx.fill();
+          ctx.restore();
+        });
+
+        ctx.fillStyle = "rgba(15,23,42,0.8)";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.font = "700 12px sans-serif";
+        ctx.fillText("Raspadita", rect.width / 2, rect.height / 2 - 48);
+
+        ctx.font = "900 44px sans-serif";
+        ctx.fillText("RASPÁ", rect.width / 2, rect.height / 2 - 4);
+
+        ctx.font = "700 20px sans-serif";
+        ctx.fillText("y activá tu bono", rect.width / 2, rect.height / 2 + 34);
+      }
+
+      function scheduleProgressUpdate() {
+        if (rafPending) return;
+        rafPending = true;
+        requestAnimationFrame(() => {
+          rafPending = false;
+          updateProgress();
+        });
+      }
+
+      function scratchAt(clientX, clientY) {
+        if (revealed) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.beginPath();
+        ctx.arc(x, y, 26, 0, Math.PI * 2);
+        ctx.fill();
+
+        scheduleProgressUpdate();
+      }
+
+      function updateProgress() {
+        if (revealed) return;
+
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        if (!ctx) return;
+
+        const width = canvas.width;
+        const height = canvas.height;
+
+        const data = ctx.getImageData(0, 0, width, height).data;
+
+        let transparent = 0;
+        const stride = 32;
+
+        for (let i = 3; i < data.length; i += 4 * stride) {
+          if (data[i] === 0) transparent += 1;
+        }
+
+        const total = Math.ceil(data.length / (4 * stride));
+        const next = Math.min(100, Math.round((transparent / total) * 100));
+
+        if (next !== progress) {
+          progress = next;
+          progressText.textContent = String(progress);
+        }
+
+        if (next >= 42) {
+          revealed = true;
+          const clearCtx = canvas.getContext("2d");
+          if (clearCtx) clearCtx.clearRect(0, 0, canvas.width, canvas.height);
+          canvas.style.display = "none";
+          statusArea.style.display = "none";
+          revealedBox.style.display = "block";
+        }
+      }
+
+      function resetScratch() {
+        revealed = false;
+        progress = 0;
+        progressText.textContent = "0";
+
+        canvas.style.display = "block";
+        statusArea.style.display = "block";
+        revealedBox.style.display = "none";
+
+        requestAnimationFrame(() => drawScratchSurface());
+      }
+
+      // Pointer events
+      canvas.addEventListener("pointerdown", (e) => {
+        if (revealed) return;
+        isDrawing = true;
+        canvas.setPointerCapture(e.pointerId);
+        scratchAt(e.clientX, e.clientY);
+      });
+
+      canvas.addEventListener("pointermove", (e) => {
+        if (!isDrawing || revealed) return;
+        scratchAt(e.clientX, e.clientY);
+      });
+
+      function stopDrawing(e) {
+        isDrawing = false;
+        if (e && typeof e.pointerId === "number") {
+          try { canvas.releasePointerCapture(e.pointerId); } catch {}
+        }
+      }
+
+      canvas.addEventListener("pointerup", stopDrawing);
+      canvas.addEventListener("pointercancel", stopDrawing);
+      canvas.addEventListener("pointerleave", stopDrawing);
+
+      resetBtn.addEventListener("click", resetScratch);
+
+      // Resize
+      window.addEventListener("resize", () => {
+        if (!revealed) drawScratchSurface();
+      });
+
+      // Init
+      drawScratchSurface();
+    </script>
+  </body>
+</html>
