@@ -250,6 +250,23 @@
       animation: fall linear forwards;
     }
 
+        .counter-box {
+      max-width: 720px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(198,255,0,0.18);
+      border-radius: 22px;
+      padding: 22px 26px;
+      font-size: 28px;
+      font-weight: 700;
+      color: #eaf2ff;
+    }
+
+    .counter-number {
+      color: #c6ff00;
+      font-weight: 900;
+    }
+
     @keyframes fall {
       0% {
         transform: translate3d(0, -12px, 0) rotate(0deg) scale(0.8);

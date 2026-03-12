@@ -12,7 +12,10 @@
   <div class="wrap">
     <div class="panel">
       <div class="head">
-        <div class="badge">BONO EXCLUSIVO</div>
+        <div class="counter-box">
+    <span class="counter-number" id="bonusCounter"></span>
+    personas activaron su bono hoy
+  </div>
         <h1>RASPÁ Y DESCUBRÍ <span>TU BONO</span></h1>
         <p class="sub">Descubrí tu premio y activalo al instante en EPICBET.</p>
       </div>
@@ -291,6 +294,50 @@
 
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
+
+
+        const counterEl = document.getElementById("bonusCounter");
+    const today = new Date().toISOString().slice(0, 10);
+
+    const STORAGE_DATE_KEY = "bonus_counter_date";
+    const STORAGE_COUNT_KEY = "bonus_counter_value";
+
+    function formatNumber(num) {
+      return num.toLocaleString("es-CL");
+    }
+
+    function getInitialBase() {
+      return Math.floor(Math.random() * 500) + 1000; // entre 2100 y 2700
+    }
+
+    let savedDate = localStorage.getItem(STORAGE_DATE_KEY);
+    let savedCount = parseInt(localStorage.getItem(STORAGE_COUNT_KEY), 10);
+
+    let count;
+
+    if (savedDate === today && !isNaN(savedCount)) {
+      count = savedCount;
+    } else {
+      count = getInitialBase();
+      localStorage.setItem(STORAGE_DATE_KEY, today);
+      localStorage.setItem(STORAGE_COUNT_KEY, count);
+    }
+
+    counterEl.textContent = formatNumber(count);
+
+    function updateCounter() {
+      const increment = Math.floor(Math.random() * 4) + 1;
+      count += increment;
+
+      counterEl.textContent = formatNumber(count);
+      localStorage.setItem(STORAGE_COUNT_KEY, count);
+
+      const nextTime = Math.floor(Math.random() * 5000) + 2500;
+      setTimeout(updateCounter, nextTime);
+    }
+
+    setTimeout(updateCounter, 7000);
+
   </script>
 </body>
 </html>
