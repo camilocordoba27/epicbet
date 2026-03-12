@@ -1,11 +1,11 @@
-const canvas = document.getElementById("scratchCanvas");
+ const canvas = document.getElementById("scratchCanvas");
     const card = document.getElementById("scratchCard");
     const progressValue = document.getElementById("progressValue");
     const resultBlock = document.getElementById("resultBlock");
     const statusBlock = document.getElementById("statusBlock");
     const confetti = document.getElementById("confetti");
 
-    const openPopupBtn = document.getElementById("openPopupBtn");
+    // ✅ Popup refs (botón eliminado)
     const closePopupBtn = document.getElementById("closePopupBtn");
     const popupOverlay = document.getElementById("popupOverlay");
 
@@ -13,6 +13,14 @@ const canvas = document.getElementById("scratchCanvas");
     let drawing = false;
     let revealed = false;
     let progress = 0;
+
+    function openPopup() {
+      popupOverlay.style.display = "flex";
+    }
+
+    function closePopup() {
+      popupOverlay.style.display = "none";
+    }
 
     function roundRect(context, x, y, width, height, radius) {
       context.beginPath();
@@ -147,6 +155,11 @@ const canvas = document.getElementById("scratchCanvas");
       resultBlock.style.display = "block";
       launchConfetti();
       playWinSound();
+
+      // ✅ CAMBIO #1: al terminar de raspar -> ABRIR POPUP
+       setTimeout(() => {
+    openPopup();
+  }, 2500);
     }
 
     function launchConfetti() {
@@ -168,11 +181,10 @@ const canvas = document.getElementById("scratchCanvas");
         confetti.appendChild(piece);
       }
 
-      setTimeout(() => {
-        confetti.innerHTML = "";
-      }, 5200);
+      setTimeout(() => { confetti.innerHTML = ""; }, 5200);
     }
 
+    // Scratch events
     canvas.addEventListener("pointerdown", (e) => {
       drawing = true;
       scratch(e.clientX, e.clientY);
@@ -184,30 +196,26 @@ const canvas = document.getElementById("scratchCanvas");
     });
 
     ["pointerup", "pointerleave", "pointercancel"].forEach((evt) => {
-      canvas.addEventListener(evt, () => {
-        drawing = false;
-      });
+      canvas.addEventListener(evt, () => { drawing = false; });
     });
 
-    openPopupBtn.addEventListener("click", () => {
-      popupOverlay.style.display = "flex";
-    });
-
-    closePopupBtn.addEventListener("click", () => {
-      popupOverlay.style.display = "none";
-    });
+    // ✅ Popup events (sin botón)
+    closePopupBtn.addEventListener("click", closePopup);
 
     popupOverlay.addEventListener("click", (e) => {
-      if (e.target === popupOverlay) {
-        popupOverlay.style.display = "none";
-      }
+      if (e.target === popupOverlay) closePopup();
+    });
+
+    // (Opcional útil) Si el usuario lo cerró, puede reabrirlo tocando el mensaje
+    resultBlock.addEventListener("click", () => {
+      if (revealed) openPopup();
     });
 
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-
-        const counterEl = document.getElementById("bonusCounter");
+    // Counter
+    const counterEl = document.getElementById("bonusCounter");
     const today = new Date().toISOString().slice(0, 10);
 
     const STORAGE_DATE_KEY = "bonus_counter_date";
@@ -218,7 +226,7 @@ const canvas = document.getElementById("scratchCanvas");
     }
 
     function getInitialBase() {
-      return Math.floor(Math.random() * 500) + 1000; // entre 2100 y 2700
+      return Math.floor(Math.random() * 500) + 1000;
     }
 
     let savedDate = localStorage.getItem(STORAGE_DATE_KEY);
@@ -243,7 +251,7 @@ const canvas = document.getElementById("scratchCanvas");
       counterEl.textContent = formatNumber(count);
       localStorage.setItem(STORAGE_COUNT_KEY, count);
 
-      const nextTime = Math.floor(Math.random() * 500) + 1000;
+      const nextTime = Math.floor(Math.random() * 5000) + 2500;
       setTimeout(updateCounter, nextTime);
     }
 
