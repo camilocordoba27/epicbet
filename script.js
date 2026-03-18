@@ -98,9 +98,9 @@
       ctx.font = "700 12px Arial";
       ctx.fillText("Raspadita", rect.width / 2, rect.height / 2 - 48);
       ctx.font = "900 44px Arial";
-      ctx.fillText("RASPÁ", rect.width / 2, rect.height / 2 - 4);
+      ctx.fillText("RASPA", rect.width / 2, rect.height / 2 - 4);
       ctx.font = "700 20px Arial";
-      ctx.fillText("y gana ahora", rect.width / 2, rect.height / 2 + 34);
+      ctx.fillText("y activa tu bono", rect.width / 2, rect.height / 2 + 34);
     }
 
     function scratch(clientX, clientY) {
